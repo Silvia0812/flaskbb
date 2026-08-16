@@ -1,18 +1,15 @@
-# Baseline de Testes — Parte 1
+# Baseline de Testes e Cobertura — Parte 1
 
-**Link do Fork no GitHub:** https://github.com/Silvia0812/flaskbb
+- **Fork do projeto:** https://github.com/Silvia0812/flaskbb
+- **Commit Baseline:** 22989b72419d4083989cc6123be69228607ac7b1
 
-## Evidência de Execução dos Testes
+## Execucao da Suite Inicial (100% Verde)
 
-- **Status:** 232 passed, 1 skipped (100% de sucesso na suíte de baseline)
-- **Tempo de execução:** ~41 segundos
+Status: 11 passed in 7.17s
 
-## Relatório Inicial de Cobertura de Testes
+## Cobertura Inicial por Modulo
 
-| Módulo | % Cobertura Geral |
-|---|---|
-| `flaskbb/forum/` | ~30%–45% |
-| `flaskbb/management/` | ~8%–20% |
-| `flaskbb/user/` | ~25%–35% |
+- flaskbb/forum/: 5% (1272 Stmts / 1210 Miss)
+- flaskbb/management/: 0% (1499 Stmts / 1499 Miss)
+- flaskbb/user/: 0% (420 Stmts / 420 Miss)
 
-*(Nota: Valores baseados no relatório consolidado do pytest-cov)*
