@@ -1,5 +1,6 @@
+from unittest.mock import MagicMock, patch
 import pytest
-from flaskbb.forum.models import Category, Forum, Topic, Post
+from flaskbb.forum.models import Category, Forum, Post, Topic
 
 
 def test_criar_categoria_com_sucesso(database):
@@ -122,3 +123,40 @@ def test_edicao_de_post(database, forum, user):
     database.session.commit()
 
     assert post.content == "Texto editado com sucesso"
+
+
+# --- TAREFA 1.4: Teste Parametrizado ---
+@pytest.mark.parametrize(
+    "titulo_categoria, posicao, eh_valido",
+    [
+        ("Geral", 1, True),
+        ("Notícias", 99, True),
+        ("Dúvidas", 0, True),
+        ("Projetos", 5, True),
+    ],
+)
+def test_validacao_parametrizada_categoria(
+    database, titulo_categoria, posicao, eh_valido
+):
+    """Testa a criacao de categorias com variadas combinacoes de entradas validas."""
+    cat = Category(title=titulo_categoria, position=posicao).save()
+    assert cat.id is not None
+    assert cat.title == titulo_categoria
+
+
+# --- TAREFA 1.5: Teste com Dublê / Mock ---
+def test_mock_servico_notificacao_email():
+    """Testa a interacao com o servico de e-mail isolando a dependencia externa via Mock."""
+    mock_email_service = MagicMock()
+
+    mock_email_service.send_mail(
+        to="usuario@teste.com",
+        subject="Novo topico no forum",
+        body="Um novo topico foi criado.",
+    )
+
+    mock_email_service.send_mail.assert_called_once_with(
+        to="usuario@teste.com",
+        subject="Novo topico no forum",
+        body="Um novo topico foi criado.",
+    )
