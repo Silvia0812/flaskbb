@@ -833,6 +833,14 @@ class Topic(HideableCRUDMixin, db.Model):
         db.session.execute(db.delete(TopicsRead).filter_by(topic_id=self.id))
 
         return True
+    def _update_counters(self, user=None, forum=None):
+        """Metodo auxiliar para atualizar contadores de usuario e forum."""
+        if user is not None:
+            self.user_id = user.id
+            self.username = user.username
+
+        if forum is not None:
+            self.forum_id = forum.id
 
     @override
     def save(
@@ -841,54 +849,47 @@ class Topic(HideableCRUDMixin, db.Model):
         forum: "Forum | None" = None,
         post: Post | None = None,
     ):
-        """Saves a topic and returns the topic object. If no parameters are
-        given, it will only update the topic.
-
-        :param user: The user who has created the topic
-        :param forum: The forum where the topic is stored
-        :param post: The post object which is connected to the topic
-        """
-        pluggy.hook.flaskbb_event_topic_save_before(topic=self)
-
-        # Updates the topic
+        """Saves a topic and returns the topic."""
         if self.id:
             db.session.add(self)
             db.session.commit()
-            pluggy.hook.flaskbb_event_topic_save_after(topic=self, is_new=False)
             return self
 
-        if forum is None or user is None:
-            logger.error("Cant create a topic without a user or forum")
-            return
+        self._update_counters(user=user, forum=forum)
 
-        with db.session.no_autoflush:
-            # Set the forum and user id
-            self.forum = forum
-            self.user = user
-            self.username = user.username
+        if post is not None:
+            self.last_post_title = self.title
+            self.last_post = self.first_post = post
 
-            # Set the last_updated time. Needed for the readstracker
-            self.date_created = self.last_updated = time_utcnow()
-
-            # Insert and commit the topic
-            db.session.add(self)
-            db.session.commit()
-
-            if post is not None:
-                self._post = post
-
-            # Create the topic post
-            self._post.save(user, self)
-
-            # Update the first and last post id
-            self.last_post = self.first_post = self._post
-
-            # Update the topic count
+        if forum is not None:
             forum.topic_count += 1
 
+        db.session.add(self)
         db.session.commit()
-        pluggy.hook.flaskbb_event_topic_save_after(topic=self, is_new=True)
+
+        pluggy.hook.flaskbb_event_topic_save(topic=self)
         return self
+        """Saves a topic and returns the topic."""
+        if self.id:
+            db.session.add(self)
+            db.session.commit()
+            return self
+
+        self._update_counters(user=user, forum=forum)
+
+        if post is not None:
+            self.last_post_title = self.title
+            self.last_post = self.first_post = post
+
+        if forum is not None:
+            forum.topic_count += 1
+
+        db.session.add(self)
+        db.session.commit()
+
+        pluggy.hook.flaskbb_event_topic_save(topic=self)
+        return self   
+        
 
     @override
     def delete(self):
