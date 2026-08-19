@@ -541,6 +541,15 @@ class Topic(HideableCRUDMixin, db.Model):
         foreign_keys=[first_post_id],
         post_update=True,
     )
+    DEFAULT_TOPIC_LIMIT = 20
+
+    def is_locked(self):
+        """Verifica se o topico esta trancado para novas respostas."""
+        return self.locked
+
+    def is_important(self):
+        """Verifica se o topico esta fixado/destacado."""
+        return self.important
 
     # One-to-one
     last_post_id: Mapped[int | None] = mapped_column(
