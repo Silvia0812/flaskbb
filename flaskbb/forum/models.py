@@ -550,7 +550,11 @@ class Topic(HideableCRUDMixin, db.Model):
     def is_important(self):
         """Verifica se o topico esta fixado/destacado."""
         return self.important
-
+    def can_be_read_by(self, user):
+        """Verifica se um determinado usuario tem permissao para ler o topico."""
+        if self.forum is None:
+            return False
+        return self.forum.can_read(user)
     # One-to-one
     last_post_id: Mapped[int | None] = mapped_column(
         ForeignKey("posts.id"), nullable=True
