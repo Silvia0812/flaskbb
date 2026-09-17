@@ -853,7 +853,16 @@ class Topic(HideableCRUDMixin, db.Model):
         forum: "Forum | None" = None,
         post: Post | None = None,
     ):
-        """Saves a topic and returns the topic."""
+"""Salva ou atualiza um tópico no banco de dados e sincroniza suas métricas.
+
+        Este método encapsula a atribuição do autor do tópico, o vínculo ao fórum pai,
+        a atualização de timestamps de modificação e aciona o recálculo automático
+        das estatísticas agregadas do fórum (contagem de tópicos e posts).
+
+        :param user: Instância do usuário autor do tópico (opcional se já definido).
+        :param forum: Instância do fórum onde o tópico será publicado.
+        :return: A própria instância do tópico salva e persistida.
+        """       
         if self.id:
             db.session.add(self)
             db.session.commit()
